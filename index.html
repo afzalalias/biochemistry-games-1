@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biochemistry Lab: Amino Acids & Proteins</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc; /* Slate 50 */
+            overflow-x: hidden;
+        }
+
+        .font-mono { font-family: 'Space Mono', monospace; }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7); /* Slate 800 with opacity */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Drag and Drop Styles */
+        .draggable { cursor: grab; }
+        .draggable:active { cursor: grabbing; }
+        .dropzone.dragover { background-color: rgba(56, 189, 248, 0.2); border-color: #38bdf8; }
+
+        /* Protein Building Animations */
+        .primary-chain { display: flex; gap: 4px; transition: all 0.5s ease; flex-wrap: wrap; justify-content: center;}
+        .aa-bead { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; color: white; transition: all 1s ease-in-out; }
+        
+        /* Secondary Structure Simulations */
+        .alpha-helix {
+            transform-style: preserve-3d;
+            animation: rotateHelix 10s linear infinite;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: center;
+        }
+        @keyframes rotateHelix {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+        .beta-sheet {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .beta-strand {
+            display: flex;
+            gap: 5px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), transparent);
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        /* Tertiary & Quaternary */
+        .tertiary-glob {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle at 30% 30%, #3b82f6, #1e3a8a);
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            animation: morph 8s ease-in-out infinite alternate;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.2);
+            transition: all 1s ease;
+        }
+        @keyframes morph {
+            0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+            100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+        }
+        .quaternary-complex {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+        .sub-glob {
+            width: 80px; height: 80px;
+            border-radius: 50% 40% 60% 40%;
+        }
+        .sub-1 { background: radial-gradient(circle, #ef4444, #7f1d1d); }
+        .sub-2 { background: radial-gradient(circle, #3b82f6, #1e3a8a); }
+        .sub-3 { background: radial-gradient(circle, #10b981, #064e3b); }
+        .sub-4 { background: radial-gradient(circle, #f59e0b, #78350f); }
+
+        /* Denaturation */
+        .denatured {
+            border-radius: 10px !important;
+            width: 200px !important;
+            height: 20px !important;
+            background: #64748b !important;
+            animation: none !important;
+            transform: scale(1.1);
+        }
+        
+        .vibrate { animation: shake 0.5s infinite; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+
+    <header class="p-4 border-b border-slate-700 bg-slate-900 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-sky-400">MBBS Biochem Lab</h1>
+                <p class="text-sm text-slate-400">Amino Acids & Proteins Pre-Reading</p>
+            </div>
+            <button id="btn-home" class="hidden px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-semibold transition-colors">
+                &larr; Back to Lab Bench
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow relative overflow-hidden flex items-center justify-center p-4" id="main-container">
+        
+        <!-- ================= MAIN MENU ================= -->
+        <div id="view-menu" class="glass-panel p-8 rounded-2xl max-w-5xl w-full text-center fade-in">
+            <h2 class="text-3xl font-extrabold mb-6">Select a Module</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <button onclick="switchView('view-amino-acids')" class="group relative p-6 rounded-xl border border-slate-600 bg-slate-800 hover:bg-slate-700 hover:border-sky-400 transition-all text-left overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-sky-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <h3 class="text-xl font-bold text-sky-300 mb-2">1. Amino Acid Sorter</h3>
+                    <p class="text-sm text-slate-400">Learn about structure, classification, and properties based on R-groups.</p>
+                </button>
+
+                <button onclick="switchView('view-protein-structure')" class="group relative p-6 rounded-xl border border-slate-600 bg-slate-800 hover:bg-slate-700 hover:emerald-400 transition-all text-left overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <h3 class="text-xl font-bold text-emerald-300 mb-2">2. Structure Builder</h3>
+                    <p class="text-sm text-slate-400">Explore primary, secondary, tertiary, and quaternary organization.</p>
+                </button>
+
+                <button onclick="switchView('view-denaturation')" class="group relative p-6 rounded-xl border border-slate-600 bg-slate-800 hover:bg-slate-700 hover:rose-400 transition-all text-left overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <h3 class="text-xl font-bold text-rose-300 mb-2">3. Denaturation Chamber</h3>
+                    <p class="text-sm text-slate-400">Investigate how heat and pH disrupt protein structure.</p>
+                </button>
+
+                <button onclick="switchView('view-functions')" class="group relative p-6 rounded-xl border border-slate-600 bg-slate-800 hover:bg-slate-700 hover:amber-400 transition-all text-left overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <h3 class="text-xl font-bold text-amber-300 mb-2">4. Functions Match-up</h3>
+                    <p class="text-sm text-slate-400">Match proteins to their vital biological roles in the body.</p>
+                </button>
+
+                <button onclick="switchView('view-zwitterion')" class="group relative p-6 rounded-xl border border-slate-600 bg-slate-800 hover:bg-slate-700 hover:border-fuchsia-400 transition-all text-left overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-fuchsia-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <h3 class="text-xl font-bold text-fuchsia-300 mb-2">5. Zwitterion & pI</h3>
+                    <p class="text-sm text-slate-400">Control the pH to see how amino acid charges change (Cation, Zwitterion, Anion).</p>
+                </button>
+
+                <button onclick="switchView('view-derivatives')" class="group relative p-6 rounded-xl border border-slate-600 bg-slate-800 hover:bg-slate-700 hover:border-indigo-400 transition-all text-left overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <h3 class="text-xl font-bold text-indigo-300 mb-2">6. AA Derivatives</h3>
+                    <p class="text-sm text-slate-400">Match amino acids to their specialized non-protein products (e.g., hormones, neurotransmitters).</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= MODULE 1: AMINO ACIDS ================= -->
+        <div id="view-amino-acids" class="hidden glass-panel p-6 rounded-2xl max-w-5xl w-full h-full max-h-[800px] flex flex-col fade-in">
+            <div class="flex justify-between items-center mb-2">
+                <h2 class="text-2xl font-bold text-sky-400">Module 1: Amino Acid Sorter</h2>
+                <button onclick="resetAminoAcids()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    Reset Sorter
+                </button>
+            </div>
+            <p class="text-sm text-slate-300 mb-4">Every alpha-amino acid has a central carbon, an amino group (-NH2), a carboxyl group (-COOH), a hydrogen atom, and a unique R-group (side chain). Drag the amino acids to their correct classification based on their R-group properties.</p>
+            
+            <div class="flex-grow grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <!-- Dropzones -->
+                <div class="dropzone p-4 rounded-xl border-2 border-dashed border-slate-600 bg-slate-800/50 flex flex-col" id="zone-nonpolar" data-type="nonpolar">
+                    <h3 class="text-center font-bold text-slate-400 mb-2 border-b border-slate-600 pb-2">Non-polar (Hydrophobic)</h3>
+                    <div class="flex-grow flex flex-col gap-2 overflow-y-auto items-center" id="container-nonpolar"></div>
+                </div>
+                <div class="dropzone p-4 rounded-xl border-2 border-dashed border-slate-600 bg-slate-800/50 flex flex-col" id="zone-polar" data-type="polar">
+                    <h3 class="text-center font-bold text-slate-400 mb-2 border-b border-slate-600 pb-2">Polar Uncharged (Hydrophilic)</h3>
+                    <div class="flex-grow flex flex-col gap-2 overflow-y-auto items-center" id="container-polar"></div>
+                </div>
+                <div class="dropzone p-4 rounded-xl border-2 border-dashed border-slate-600 bg-slate-800/50 flex flex-col" id="zone-acidic" data-type="acidic">
+                    <h3 class="text-center font-bold text-slate-400 mb-2 border-b border-slate-600 pb-2">Acidic (-ve charge)</h3>
+                    <div class="flex-grow flex flex-col gap-2 overflow-y-auto items-center" id="container-acidic"></div>
+                </div>
+                <div class="dropzone p-4 rounded-xl border-2 border-dashed border-slate-600 bg-slate-800/50 flex flex-col" id="zone-basic" data-type="basic">
+                    <h3 class="text-center font-bold text-slate-400 mb-2 border-b border-slate-600 pb-2">Basic (+ve charge)</h3>
+                    <div class="flex-grow flex flex-col gap-2 overflow-y-auto items-center" id="container-basic"></div>
+                </div>
+            </div>
+
+            <div class="h-1/3 bg-slate-800 rounded-xl p-4 overflow-y-auto border border-slate-700">
+                <h3 class="text-sm font-semibold text-slate-400 mb-2">Amino Acid Pool (Drag from here)</h3>
+                <div id="aa-pool" class="flex flex-wrap gap-2 justify-center">
+                    <!-- Cards injected by JS -->
+                </div>
+            </div>
+            <div id="aa-feedback" class="mt-2 text-center h-6 font-semibold text-amber-300"></div>
+        </div>
+
+        <!-- ================= MODULE 2: PROTEIN STRUCTURE ================= -->
+        <div id="view-protein-structure" class="hidden glass-panel p-6 rounded-2xl max-w-4xl w-full h-full max-h-[800px] flex flex-col fade-in">
+            <h2 class="text-2xl font-bold text-emerald-400 mb-2">Module 2: Structural Organization</h2>
+            <p class="text-sm text-slate-300 mb-4">Proteins fold into specific shapes determined by their amino acid sequence. Advance through the structural levels.</p>
+            
+            <div class="flex justify-center gap-2 mb-6">
+                <button id="btn-primary" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded text-sm font-bold">1° Primary</button>
+                <button id="btn-secondary" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold" disabled>2° Secondary</button>
+                <button id="btn-tertiary" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold" disabled>3° Tertiary</button>
+                <button id="btn-quaternary" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded text-sm font-bold" disabled>4° Quaternary</button>
+            </div>
+
+            <div class="flex-grow flex flex-col items-center justify-center bg-slate-800/50 rounded-xl border border-slate-700 p-8 relative overflow-hidden">
+                
+                <!-- Educational Text Overlay -->
+                <div id="struct-info" class="absolute top-4 left-4 right-4 bg-slate-900/80 p-4 rounded-lg border border-slate-600 text-sm">
+                    <strong>Primary Structure:</strong> The linear sequence of amino acids linked by peptide bonds ("beads on a string"). This sequence determines all higher levels of structure.
+                </div>
+
+                <!-- Visualization Area -->
+                <div id="struct-visualizer" class="w-full h-full flex items-center justify-center pt-20">
+                    <!-- Primary -->
+                    <div id="vis-primary" class="primary-chain">
+                        <!-- Beads injected by JS -->
+                    </div>
+                    
+                    <!-- Secondary -->
+                    <div id="vis-secondary" class="hidden flex gap-12 items-center">
+                        <div class="text-center">
+                            <div class="alpha-helix mb-2">
+                                <!-- Generated by JS -->
+                            </div>
+                            <span class="text-xs text-slate-400">Alpha Helix (H-bonds)</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="beta-sheet mb-2">
+                                <div class="beta-strand"><div class="aa-bead bg-sky-500"></div><div class="aa-bead bg-indigo-500"></div><div class="aa-bead bg-purple-500"></div></div>
+                                <div class="beta-strand"><div class="aa-bead bg-teal-500"></div><div class="aa-bead bg-green-500"></div><div class="aa-bead bg-lime-500"></div></div>
+                            </div>
+                            <span class="text-xs text-slate-400">Beta Pleated Sheet</span>
+                        </div>
+                    </div>
+
+                    <!-- Tertiary -->
+                    <div id="vis-tertiary" class="hidden text-center">
+                        <div class="tertiary-glob mx-auto mb-4" id="tert-protein"></div>
+                        <span class="text-xs text-slate-400">3D Folding (Hydrophobic interactions, Disulfide bridges, Ionic bonds)</span>
+                    </div>
+
+                    <!-- Quaternary -->
+                    <div id="vis-quaternary" class="hidden text-center">
+                        <div class="quaternary-complex mx-auto mb-4">
+                            <div class="sub-glob sub-1"></div><div class="sub-glob sub-2"></div>
+                            <div class="sub-glob sub-3"></div><div class="sub-glob sub-4"></div>
+                        </div>
+                        <span class="text-xs text-slate-400">Multiple Polypeptide Subunits (e.g., Hemoglobin)</span>
+                    </div>
+
+                </div>
+            </div>
+            
+            <div class="mt-4 flex justify-end">
+                 <button id="btn-next-struct" class="px-6 py-2 bg-sky-600 hover:bg-sky-500 rounded-lg font-bold shadow-lg shadow-sky-500/20">Next Level &rarr;</button>
+            </div>
+        </div>
+
+        <!-- ================= MODULE 3: DENATURATION ================= -->
+        <div id="view-denaturation" class="hidden glass-panel p-6 rounded-2xl max-w-4xl w-full h-full max-h-[800px] flex flex-col fade-in">
+             <h2 class="text-2xl font-bold text-rose-400 mb-2">Module 3: Denaturation Chamber</h2>
+             <p class="text-sm text-slate-300 mb-4">Denaturation is the loss of 2°, 3°, and 4° structure (unfolding), leading to loss of biological activity. Primary structure (peptide bonds) remains intact. Apply stress to see what happens.</p>
+             
+             <div class="flex-grow flex gap-4">
+                 <!-- Control Panel -->
+                 <div class="w-1/3 bg-slate-800 rounded-xl p-4 flex flex-col gap-4 border border-slate-700">
+                    <h3 class="font-bold text-slate-400 border-b border-slate-600 pb-2">Apply Stressors</h3>
+                    
+                    <div>
+                        <label class="text-sm mb-1 block">Temperature (Heat)</label>
+                        <input type="range" id="slider-temp" min="37" max="100" value="37" class="w-full accent-rose-500">
+                        <div class="flex justify-between text-xs text-slate-400"><span>37°C</span><span>100°C</span></div>
+                    </div>
+
+                    <div>
+                        <label class="text-sm mb-1 block">pH Level (Acid/Base)</label>
+                        <input type="range" id="slider-ph" min="1" max="14" value="7" class="w-full accent-amber-500">
+                        <div class="flex justify-between text-xs text-slate-400"><span>pH 1</span><span>pH 7</span><span>pH 14</span></div>
+                    </div>
+
+                    <div class="mt-auto">
+                        <button id="btn-renature" class="w-full py-2 bg-emerald-600/50 text-emerald-200 border border-emerald-500 rounded hover:bg-emerald-600 transition-colors hidden">Attempt Renaturation</button>
+                    </div>
+                 </div>
+
+                 <!-- Chamber -->
+                 <div class="w-2/3 bg-slate-900 rounded-xl border-2 border-slate-700 flex flex-col items-center justify-center relative overflow-hidden" id="chamber-bg">
+                    
+                    <!-- Fire effect overlay -->
+                    <div id="heat-effect" class="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-rose-600/40 to-transparent opacity-0 transition-opacity duration-300"></div>
+                    <!-- Acid effect overlay -->
+                    <div id="acid-effect" class="absolute inset-0 bg-amber-500/20 opacity-0 transition-opacity duration-300"></div>
+
+                    <div class="z-10 text-center">
+                        <div id="denature-protein" class="tertiary-glob mx-auto mb-4 bg-sky-500 shadow-sky-500/50"></div>
+                        <div id="denature-status" class="text-lg font-bold text-emerald-400">Folded & Active</div>
+                        <div id="denature-info" class="text-xs text-slate-400 mt-2 max-w-xs mx-auto">Normal physiological conditions.</div>
+                    </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- ================= MODULE 4: FUNCTIONS ================= -->
+        <div id="view-functions" class="hidden glass-panel p-6 rounded-2xl max-w-5xl w-full h-full max-h-[800px] flex flex-col fade-in">
+             <h2 class="text-2xl font-bold text-amber-400 mb-2">Module 4: Protein Roles Match-up</h2>
+             <p class="text-sm text-slate-300 mb-4">Proteins are the workhorses of the cell. Select a Protein Type on the left, then click its corresponding Function/Example on the right to make a match.</p>
+             
+             <div class="flex-grow flex gap-8 h-full">
+                 <div class="w-1/2 flex flex-col gap-3" id="col-types">
+                     <!-- Populated by JS -->
+                 </div>
+                 <div class="w-1/2 flex flex-col gap-3" id="col-functions">
+                     <!-- Populated by JS -->
+                 </div>
+             </div>
+
+             <div id="match-feedback" class="mt-4 text-center text-lg font-bold h-8"></div>
+        </div>
+
+        <!-- ================= MODULE 5: ZWITTERION SIMULATOR ================= -->
+        <div id="view-zwitterion" class="hidden glass-panel p-6 rounded-2xl max-w-4xl w-full h-full max-h-[800px] flex flex-col fade-in">
+             <h2 class="text-2xl font-bold text-fuchsia-400 mb-2">Module 5: Zwitterion & Isoelectric Point (pI)</h2>
+             <p class="text-sm text-slate-300 mb-4">Amino acids are amphoteric. Use the slider to change the pH of the solution. Observe how the carboxyl (pK1 ~2.3) and amino (pK2 ~9.6) groups gain or lose protons, changing the net charge of this Alanine molecule.</p>
+             
+             <div class="flex-grow flex flex-col items-center justify-center bg-slate-900 rounded-xl border border-slate-700 p-8 relative">
+                
+                <!-- Chemical Structure Display -->
+                <div class="flex items-center justify-center space-x-4 text-4xl font-mono mb-12">
+                    <div id="amino-group" class="text-sky-400 transition-colors font-bold">H<sub>3</sub>N<sup>+</sup></div>
+                    <div class="text-slate-200 font-bold">— CH(CH<sub>3</sub>) —</div>
+                    <div id="carboxyl-group" class="text-rose-400 transition-colors font-bold">COOH</div>
+                </div>
+
+                <!-- Status Tags -->
+                <div class="flex space-x-8 mb-12 text-center">
+                    <div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest mb-1">State</div>
+                        <div id="zwitter-state" class="text-2xl font-bold text-fuchsia-300">Cation</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400 uppercase tracking-widest mb-1">Net Charge</div>
+                        <div id="zwitter-charge" class="text-2xl font-bold text-white">+1</div>
+                    </div>
+                </div>
+
+                <!-- Slider -->
+                <div class="w-full max-w-2xl px-4">
+                    <label class="text-sm font-bold text-slate-300 mb-4 block text-center">Solution pH: <span id="ph-display" class="text-fuchsia-400 text-lg">1.0</span></label>
+                    <input type="range" id="slider-zwitter-ph" min="1" max="14" step="0.1" value="1" class="w-full accent-fuchsia-500 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-xs font-bold text-slate-400 mt-2">
+                        <span>Acidic (pH 1)</span>
+                        <span>Neutral (pH 7)</span>
+                        <span>Basic (pH 14)</span>
+                    </div>
+                </div>
+             </div>
+        </div>
+
+        <!-- ================= MODULE 6: DERIVATIVES ================= -->
+        <div id="view-derivatives" class="hidden glass-panel p-6 rounded-2xl max-w-5xl w-full h-full max-h-[800px] flex flex-col fade-in">
+             <h2 class="text-2xl font-bold text-indigo-400 mb-2">Module 6: Special Amino Acid Derivatives</h2>
+             <p class="text-sm text-slate-300 mb-4">Amino acids are not just for building proteins! Many act as precursors for vital molecules like neurotransmitters and hormones. Match the precursor amino acid (left) to its biological product (right).</p>
+             
+             <div class="flex-grow flex gap-8 h-full">
+                 <div class="w-1/2 flex flex-col gap-2 overflow-y-auto pr-2" id="col-deriv-aa">
+                     <!-- Populated by JS -->
+                 </div>
+                 <div class="w-1/2 flex flex-col gap-2 overflow-y-auto pr-2" id="col-deriv-products">
+                     <!-- Populated by JS -->
+                 </div>
+             </div>
+
+             <div id="deriv-feedback" class="mt-4 text-center text-lg font-bold h-8"></div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- Navigation Logic ---
+        const views = ['view-menu', 'view-amino-acids', 'view-protein-structure', 'view-denaturation', 'view-functions', 'view-zwitterion', 'view-derivatives'];
+        const btnHome = document.getElementById('btn-home');
+
+        function switchView(viewId) {
+            views.forEach(v => {
+                document.getElementById(v).classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+            
+            if (viewId === 'view-menu') {
+                btnHome.classList.add('hidden');
+            } else {
+                btnHome.classList.remove('hidden');
+                // Initialize specific views if needed
+                if(viewId === 'view-protein-structure') resetStructure();
+                if(viewId === 'view-denaturation') resetDenaturation();
+                if(viewId === 'view-functions' && !funcsInitialized) initFunctionsGame();
+                if(viewId === 'view-zwitterion') resetZwitterion();
+                if(viewId === 'view-derivatives' && !derivsInitialized) initDerivativesGame();
+            }
+        }
+
+        btnHome.addEventListener('click', () => switchView('view-menu'));
+
+        // --- Utility ---
+        function showFeedback(elementId, text, isSuccess) {
+            const el = document.getElementById(elementId);
+            el.textContent = text;
+            el.className = `mt-2 text-center h-6 font-bold ${isSuccess ? 'text-emerald-400' : 'text-rose-400'}`;
+            setTimeout(() => { el.textContent = ''; }, 3000);
+        }
+
+        // ================= MODULE 1: AMINO ACIDS LOGIC =================
+        const aminoAcidsData = [
+            { name: 'Alanine', type: 'nonpolar', abbr: 'Ala' },
+            { name: 'Valine', type: 'nonpolar', abbr: 'Val' },
+            { name: 'Leucine', type: 'nonpolar', abbr: 'Leu' },
+            { name: 'Serine', type: 'polar', abbr: 'Ser' },
+            { name: 'Threonine', type: 'polar', abbr: 'Thr' },
+            { name: 'Aspartic Acid', type: 'acidic', abbr: 'Asp' },
+            { name: 'Glutamic Acid', type: 'acidic', abbr: 'Glu' },
+            { name: 'Lysine', type: 'basic', abbr: 'Lys' },
+            { name: 'Arginine', type: 'basic', abbr: 'Arg' }
+        ];
+
+        let draggedItem = null;
+
+        function initAminoAcids() {
+            const pool = document.getElementById('aa-pool');
+            // Shuffle data
+            const shuffled = [...aminoAcidsData].sort(() => 0.5 - Math.random());
+            
+            shuffled.forEach(aa => {
+                const card = document.createElement('div');
+                card.className = 'draggable px-3 py-2 bg-slate-700 border border-slate-500 rounded cursor-grab hover:bg-slate-600 select-none text-sm font-semibold flex flex-col items-center shadow-sm';
+                card.draggable = true;
+                card.dataset.type = aa.type;
+                card.id = `aa-${aa.name}`;
+                card.innerHTML = `<span>${aa.name}</span><span class="text-xs text-slate-400">(${aa.abbr})</span>`;
+                
+                // Drag events
+                card.addEventListener('dragstart', function(e) {
+                    draggedItem = this;
+                    setTimeout(() => this.classList.add('invisible'), 0);
+                });
+                card.addEventListener('dragend', function() {
+                    this.classList.remove('invisible');
+                    draggedItem = null;
+                });
+                
+                pool.appendChild(card);
+            });
+
+            // Dropzone events
+            document.querySelectorAll('.dropzone').forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+                zone.addEventListener('dragleave', function() {
+                    this.classList.remove('dragover');
+                });
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                    if (draggedItem) {
+                        const expectedType = this.dataset.type;
+                        const actualType = draggedItem.dataset.type;
+                        
+                        if (expectedType === actualType) {
+                            // Correct
+                            this.querySelector('div').appendChild(draggedItem);
+                            draggedItem.classList.replace('bg-slate-700', 'bg-emerald-900/50');
+                            draggedItem.classList.replace('border-slate-500', 'border-emerald-500');
+                            draggedItem.draggable = false; // Disable dragging once correct
+                            draggedItem.style.cursor = 'default';
+                            showFeedback('aa-feedback', 'Correct! Property matches R-group.', true);
+                            checkAAWin();
+                        } else {
+                            // Incorrect
+                            showFeedback('aa-feedback', 'Incorrect classification. Try again.', false);
+                            // Visual shake
+                            const item = draggedItem; // Capture local reference before it becomes null
+                            item.classList.add('vibrate');
+                            setTimeout(() => item.classList.remove('vibrate'), 500);
+                        }
+                    }
+                });
+            });
+        }
+        
+        function checkAAWin() {
+            const pool = document.getElementById('aa-pool');
+            if (pool.children.length === 0) {
+                showFeedback('aa-feedback', 'Excellent! You sorted all amino acids correctly.', true);
+            }
+        }
+
+        function resetAminoAcids() {
+            const pool = document.getElementById('aa-pool');
+            const dropzones = ['container-nonpolar', 'container-polar', 'container-acidic', 'container-basic'];
+            
+            // Move items back to the pool and reset their properties
+            dropzones.forEach(id => {
+                const container = document.getElementById(id);
+                while (container.firstChild) {
+                    const item = container.firstChild;
+                    item.classList.replace('bg-emerald-900/50', 'bg-slate-700');
+                    item.classList.replace('border-emerald-500', 'border-slate-500');
+                    item.draggable = true;
+                    item.style.cursor = 'grab';
+                    pool.appendChild(item);
+                }
+            });
+            
+            // Shuffle the items in the pool for a fresh attempt
+            for (let i = pool.children.length; i >= 0; i--) {
+                pool.appendChild(pool.children[Math.random() * i | 0]);
+            }
+            
+            document.getElementById('aa-feedback').textContent = '';
+        }
+        
+        initAminoAcids();
+
+        // ================= MODULE 2: PROTEIN STRUCTURE LOGIC =================
+        const levels = ['primary', 'secondary', 'tertiary', 'quaternary'];
+        let currentStructLevel = 0;
+        
+        const structDescriptions = [
+            "<strong>Primary Structure:</strong> The linear sequence of amino acids linked by covalent peptide bonds. Determines folding.",
+            "<strong>Secondary Structure:</strong> Local folding into Alpha-helices or Beta-sheets stabilized by Hydrogen bonds between backbone atoms.",
+            "<strong>Tertiary Structure:</strong> Overall 3D shape of a single polypeptide. Stabilized by interactions between R-groups (hydrophobic, disulfide, ionic).",
+            "<strong>Quaternary Structure:</strong> Interaction of multiple folded polypeptide subunits to form a functional protein complex (e.g., Hemoglobin has 4 subunits)."
+        ];
+
+        const colors = ['bg-rose-500', 'bg-sky-500', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500', 'bg-indigo-500'];
+
+        function initPrimaryVisualizer() {
+            const container = document.getElementById('vis-primary');
+            container.innerHTML = '';
+            for(let i=0; i<15; i++) {
+                const bead = document.createElement('div');
+                bead.className = `aa-bead ${colors[Math.floor(Math.random() * colors.length)]} shadow-md`;
+                bead.textContent = aminoAcidsData[Math.floor(Math.random() * aminoAcidsData.length)].abbr;
+                container.appendChild(bead);
+            }
+
+            // Create helix beads hidden initially
+            const helixContainer = document.querySelector('.alpha-helix');
+            helixContainer.innerHTML = '';
+            for(let i=0; i<8; i++) {
+                const hbead = document.createElement('div');
+                hbead.className = `w-6 h-6 rounded-full bg-sky-500/80 border border-sky-300`;
+                helixContainer.appendChild(hbead);
+            }
+        }
+
+        function updateStructureView() {
+            // Update buttons
+            levels.forEach((lvl, index) => {
+                const btn = document.getElementById(`btn-${lvl}`);
+                if (index === currentStructLevel) {
+                    btn.classList.replace('bg-slate-700', 'bg-emerald-600');
+                    btn.classList.add('text-white');
+                    btn.disabled = false;
+                } else if (index < currentStructLevel) {
+                    btn.classList.replace('bg-emerald-600', 'bg-emerald-900');
+                    btn.classList.replace('bg-slate-700', 'bg-emerald-900');
+                    btn.disabled = true;
+                } else {
+                    btn.classList.replace('bg-emerald-600', 'bg-slate-700');
+                    btn.disabled = true;
+                }
+            });
+
+            // Update Info
+            document.getElementById('struct-info').innerHTML = structDescriptions[currentStructLevel];
+
+            // Update Visuals
+            document.getElementById('vis-primary').classList.add('hidden');
+            document.getElementById('vis-secondary').classList.add('hidden');
+            document.getElementById('vis-tertiary').classList.add('hidden');
+            document.getElementById('vis-quaternary').classList.add('hidden');
+
+            document.getElementById(`vis-${levels[currentStructLevel]}`).classList.remove('hidden');
+
+            // Button logic
+            const nextBtn = document.getElementById('btn-next-struct');
+            if (currentStructLevel === 3) {
+                nextBtn.textContent = 'Reset';
+                nextBtn.classList.replace('bg-sky-600', 'bg-slate-600');
+            } else {
+                nextBtn.innerHTML = 'Next Level &rarr;';
+                nextBtn.classList.replace('bg-slate-600', 'bg-sky-600');
+            }
+        }
+
+        document.getElementById('btn-next-struct').addEventListener('click', () => {
+            if (currentStructLevel < 3) {
+                currentStructLevel++;
+                updateStructureView();
+            } else {
+                resetStructure();
+            }
+        });
+
+        function resetStructure() {
+            currentStructLevel = 0;
+            initPrimaryVisualizer();
+            updateStructureView();
+        }
+        
+        initPrimaryVisualizer();
+
+        // ================= MODULE 3: DENATURATION LOGIC =================
+        const tempSlider = document.getElementById('slider-temp');
+        const phSlider = document.getElementById('slider-ph');
+        const protGlobe = document.getElementById('denature-protein');
+        const dStatus = document.getElementById('denature-status');
+        const dInfo = document.getElementById('denature-info');
+        const heatEffect = document.getElementById('heat-effect');
+        const acidEffect = document.getElementById('acid-effect');
+        const btnRenature = document.getElementById('btn-renature');
+        const chamberBg = document.getElementById('chamber-bg');
+
+        let isDenatured = false;
+
+        function checkDenaturation() {
+            const temp = parseInt(tempSlider.value);
+            const ph = parseInt(phSlider.value);
+            
+            // Visual effects intensity
+            const heatOp = (temp - 37) / (100 - 37);
+            heatEffect.style.opacity = heatOp > 0 ? heatOp : 0;
+            
+            let acidOp = 0;
+            if (ph < 6) acidOp = (7 - ph) / 7;
+            if (ph > 8) acidOp = (ph - 7) / 7;
+            acidEffect.style.opacity = acidOp > 0 ? acidOp : 0;
+
+            // Vibrate based on stress
+            if ((temp > 50 && temp < 60) || (ph < 5 && ph > 3) || (ph > 9 && ph < 11)) {
+                protGlobe.classList.add('vibrate');
+            } else {
+                protGlobe.classList.remove('vibrate');
+            }
+
+            // Denaturation Thresholds
+            if (!isDenatured && (temp > 60 || ph < 3 || ph > 11)) {
+                triggerDenaturation(temp > 60 ? 'heat' : 'pH');
+            }
+        }
+
+        function triggerDenaturation(cause) {
+            isDenatured = true;
+            protGlobe.classList.remove('vibrate');
+            protGlobe.classList.add('denatured');
+            
+            dStatus.textContent = "DENATURED";
+            dStatus.className = "text-xl font-bold text-rose-500";
+            
+            if (cause === 'heat') {
+                 dInfo.innerHTML = "Heat increased kinetic energy, disrupting <strong>hydrogen bonds and hydrophobic interactions</strong>. The protein unfolds.";
+            } else {
+                 dInfo.innerHTML = "Extreme pH altered the charge of R-groups, disrupting <strong>ionic bonds (salt bridges) and hydrogen bonds</strong>. The protein unfolds.";
+            }
+            
+            btnRenature.classList.remove('hidden');
+        }
+
+        function attemptRenaturation() {
+            const temp = parseInt(tempSlider.value);
+            const ph = parseInt(phSlider.value);
+            
+            // Can only renature if conditions are normal
+            if (temp <= 40 && ph >= 6 && ph <= 8) {
+                // Some proteins can renature
+                protGlobe.classList.remove('denatured');
+                isDenatured = false;
+                dStatus.textContent = "Folded & Active (Renatured)";
+                dStatus.className = "text-lg font-bold text-emerald-400";
+                dInfo.innerHTML = "Ideal conditions restored. The primary structure guided refolding into the native conformation. <em>(Note: Not all proteins can renature in reality, e.g., cooked egg white).</em>";
+                btnRenature.classList.add('hidden');
+            } else {
+                alert("Cannot renature! You must return Temperature to ~37°C and pH to ~7 first.");
+            }
+        }
+
+        function resetDenaturation() {
+            tempSlider.value = 37;
+            phSlider.value = 7;
+            heatEffect.style.opacity = 0;
+            acidEffect.style.opacity = 0;
+            protGlobe.classList.remove('denatured', 'vibrate');
+            isDenatured = false;
+            dStatus.textContent = "Folded & Active";
+            dStatus.className = "text-lg font-bold text-emerald-400";
+            dInfo.innerHTML = "Normal physiological conditions (Temp: 37°C, pH: 7).";
+            btnRenature.classList.add('hidden');
+        }
+
+        tempSlider.addEventListener('input', checkDenaturation);
+        phSlider.addEventListener('input', checkDenaturation);
+        btnRenature.addEventListener('click', attemptRenaturation);
+
+        // ================= MODULE 4: FUNCTIONS LOGIC =================
+        const functionsData = [
+            { type: 'Catalytic (Enzyme)', desc: 'Accelerates biochemical reactions', ex: 'Amylase, DNA Polymerase' },
+            { type: 'Structural', desc: 'Provides mechanical support and shape', ex: 'Collagen, Keratin' },
+            { type: 'Transport', desc: 'Carries molecules across cell membranes or body', ex: 'Hemoglobin, Albumin' },
+            { type: 'Defense (Immunity)', desc: 'Protects body against foreign pathogens', ex: 'Antibodies (Immunoglobulins)' },
+            { type: 'Regulatory (Hormone)', desc: 'Chemical messengers regulating physiological processes', ex: 'Insulin, Glucagon' }
+        ];
+
+        let selectedType = null;
+        let selectedFunc = null;
+        let funcsInitialized = false;
+        let matchedCount = 0;
+
+        function initFunctionsGame() {
+            funcsInitialized = true;
+            matchedCount = 0;
+            const colTypes = document.getElementById('col-types');
+            const colFuncs = document.getElementById('col-functions');
+            colTypes.innerHTML = '';
+            colFuncs.innerHTML = '';
+            document.getElementById('match-feedback').textContent = '';
+
+            // Shuffle separately
+            const types = [...functionsData].map((d, i) => ({ id: i, text: d.type }));
+            const funcs = [...functionsData].map((d, i) => ({ id: i, text: `<strong>${d.desc}</strong><br><span class="text-sm text-slate-400">e.g., ${d.ex}</span>` }));
+            
+            funcs.sort(() => 0.5 - Math.random());
+
+            types.forEach(t => {
+                const btn = document.createElement('button');
+                btn.className = 'p-4 bg-slate-800 border-2 border-slate-600 rounded-xl text-left hover:border-amber-400 transition-colors match-type';
+                btn.dataset.id = t.id;
+                btn.textContent = t.text;
+                btn.onclick = () => selectItem('type', btn, t.id);
+                colTypes.appendChild(btn);
+            });
+
+            funcs.forEach(f => {
+                const btn = document.createElement('button');
+                btn.className = 'p-4 bg-slate-800 border-2 border-slate-600 rounded-xl text-left hover:border-sky-400 transition-colors match-func';
+                btn.dataset.id = f.id;
+                btn.innerHTML = f.text;
+                btn.onclick = () => selectItem('func', btn, f.id);
+                colFuncs.appendChild(btn);
+            });
+        }
+
+        function selectItem(category, element, id) {
+            // Deselect previous in same category
+            const currentSelected = document.querySelector(`.selected-${category}`);
+            if (currentSelected) {
+                currentSelected.classList.remove(`selected-${category}`, 'border-amber-500', 'border-sky-500');
+                currentSelected.classList.add('border-slate-600');
+            }
+
+            // Select new
+            element.classList.remove('border-slate-600');
+            if (category === 'type') {
+                element.classList.add('selected-type', 'border-amber-500');
+                selectedType = { el: element, id: id };
+            } else {
+                element.classList.add('selected-func', 'border-sky-500');
+                selectedFunc = { el: element, id: id };
+            }
+
+            checkMatch();
+        }
+
+        function checkMatch() {
+            if (selectedType && selectedFunc) {
+                if (selectedType.id === selectedFunc.id) {
+                    // Match!
+                    showFeedback('match-feedback', 'Correct Match!', true);
+                    
+                    // Style as matched
+                    selectedType.el.classList.replace('border-amber-500', 'border-emerald-500');
+                    selectedType.el.classList.add('bg-emerald-900/30', 'opacity-50', 'pointer-events-none');
+                    
+                    selectedFunc.el.classList.replace('border-sky-500', 'border-emerald-500');
+                    selectedFunc.el.classList.add('bg-emerald-900/30', 'opacity-50', 'pointer-events-none');
+
+                    matchedCount++;
+                    if(matchedCount === functionsData.length) {
+                        setTimeout(() => {
+                            showFeedback('match-feedback', 'All roles matched! Great job.', true);
+                        }, 1000);
+                    }
+                } else {
+                    // Mismatch
+                    showFeedback('match-feedback', 'Incorrect, try again.', false);
+                    
+                    const tEl = selectedType.el;
+                    const fEl = selectedFunc.el;
+                    
+                    tEl.classList.remove('selected-type', 'border-amber-500');
+                    tEl.classList.add('border-slate-600');
+                    fEl.classList.remove('selected-func', 'border-sky-500');
+                    fEl.classList.add('border-slate-600');
+                    
+                    // Shake effects
+                    tEl.classList.add('vibrate');
+                    fEl.classList.add('vibrate');
+                    
+                    setTimeout(() => {
+                        tEl.classList.remove('vibrate');
+                        fEl.classList.remove('vibrate');
+                    }, 500);
+                }
+                // Reset selections
+                selectedType = null;
+                selectedFunc = null;
+            }
+        }
+
+        // ================= MODULE 5: ZWITTERION LOGIC =================
+        const phZwitterSlider = document.getElementById('slider-zwitter-ph');
+        const phDisplay = document.getElementById('ph-display');
+        const aminoGroup = document.getElementById('amino-group');
+        const carboxylGroup = document.getElementById('carboxyl-group');
+        const zwitterState = document.getElementById('zwitter-state');
+        const zwitterCharge = document.getElementById('zwitter-charge');
+
+        // Approximate pKa values for a standard neutral AA (like Alanine)
+        const pK1 = 2.3; // Carboxyl group
+        const pK2 = 9.6; // Amino group
+        const pI = (pK1 + pK2) / 2; // Isoelectric point (~5.95)
+
+        function updateZwitterion() {
+            const currentPh = parseFloat(phZwitterSlider.value);
+            phDisplay.textContent = currentPh.toFixed(1);
+
+            // Carboxyl Group Logic
+            if (currentPh < pK1) {
+                carboxylGroup.innerHTML = 'COOH';
+                carboxylGroup.className = 'text-rose-400 transition-colors font-bold'; // Protonated (Acidic)
+            } else {
+                carboxylGroup.innerHTML = 'COO<sup>-</sup>';
+                carboxylGroup.className = 'text-sky-400 transition-colors font-bold'; // Deprotonated (Basic)
+            }
+
+            // Amino Group Logic
+            if (currentPh < pK2) {
+                aminoGroup.innerHTML = 'H<sub>3</sub>N<sup>+</sup>';
+                aminoGroup.className = 'text-rose-400 transition-colors font-bold'; // Protonated (Acidic)
+            } else {
+                aminoGroup.innerHTML = 'H<sub>2</sub>N';
+                aminoGroup.className = 'text-sky-400 transition-colors font-bold'; // Deprotonated (Basic)
+            }
+
+            // Determine Net Charge and State
+            if (currentPh < pK1) {
+                zwitterState.textContent = 'Cation';
+                zwitterCharge.textContent = '+1';
+            } else if (currentPh >= pK1 && currentPh < pK2) {
+                // Technically near pI is the true zwitterion, but chemically between pK1 and pK2 it is the dominant form
+                zwitterState.textContent = 'Zwitterion';
+                zwitterCharge.textContent = '0';
+            } else {
+                zwitterState.textContent = 'Anion';
+                zwitterCharge.textContent = '-1';
+            }
+
+            // Highlight exactly at pI (give or take a small margin for the slider)
+            if (Math.abs(currentPh - pI) < 0.5) {
+                phDisplay.innerHTML = `${currentPh.toFixed(1)} <span class="text-xs text-emerald-400 ml-1">(Near pI)</span>`;
+            }
+        }
+
+        function resetZwitterion() {
+            phZwitterSlider.value = 1;
+            updateZwitterion();
+        }
+
+        phZwitterSlider.addEventListener('input', updateZwitterion);
+
+        // ================= MODULE 6: DERIVATIVES LOGIC =================
+        const derivativesData = [
+            { aa: 'Tyrosine', prod: 'Melanin, Dopamine, Thyroxine', desc: 'Skin pigment, neurotransmitter, and thyroid hormone' },
+            { aa: 'Tryptophan', prod: 'Serotonin & Melatonin', desc: 'Vasoconstrictor/Mood regulator and Sleep hormone' },
+            { aa: 'Histidine', prod: 'Histamine', desc: 'Vasodilator involved in allergic responses' },
+            { aa: 'Glutamate', prod: 'GABA', desc: 'Major inhibitory neurotransmitter in the brain' },
+            { aa: 'Arginine', prod: 'Nitric Oxide (NO)', desc: 'Potent vasodilator' },
+            { aa: 'Glycine', prod: 'Heme (Porphyrin)', desc: 'Component of hemoglobin and cytochromes' }
+        ];
+
+        let selectedDerivAa = null;
+        let selectedDerivProd = null;
+        let derivsInitialized = false;
+        let derivMatchedCount = 0;
+
+        function initDerivativesGame() {
+            derivsInitialized = true;
+            derivMatchedCount = 0;
+            const colAa = document.getElementById('col-deriv-aa');
+            const colProds = document.getElementById('col-deriv-products');
+            colAa.innerHTML = '';
+            colProds.innerHTML = '';
+            document.getElementById('deriv-feedback').textContent = '';
+
+            const aas = [...derivativesData].map((d, i) => ({ id: i, text: d.aa }));
+            const prods = [...derivativesData].map((d, i) => ({ id: i, text: `<strong class="text-indigo-300 text-sm">${d.prod}</strong><br><span class="text-xs text-slate-400 block mt-0.5 leading-snug">${d.desc}</span>` }));
+            
+            // Shuffle
+            aas.sort(() => 0.5 - Math.random());
+            prods.sort(() => 0.5 - Math.random());
+
+            aas.forEach(a => {
+                const btn = document.createElement('button');
+                btn.className = 'p-3 bg-slate-800 border-2 border-slate-600 rounded-xl text-left hover:border-indigo-400 transition-colors font-bold text-sm shadow-sm';
+                btn.dataset.id = a.id;
+                btn.textContent = a.text;
+                btn.onclick = () => selectDerivItem('aa', btn, a.id);
+                colAa.appendChild(btn);
+            });
+
+            prods.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = 'p-3 bg-slate-800 border-2 border-slate-600 rounded-xl text-left hover:border-fuchsia-400 transition-colors shadow-sm';
+                btn.dataset.id = p.id;
+                btn.innerHTML = p.text;
+                btn.onclick = () => selectDerivItem('prod', btn, p.id);
+                colProds.appendChild(btn);
+            });
+        }
+
+        function selectDerivItem(category, element, id) {
+            const currentSelected = document.querySelector(`.selected-deriv-${category}`);
+            if (currentSelected) {
+                currentSelected.classList.remove(`selected-deriv-${category}`, 'border-indigo-500', 'border-fuchsia-500');
+                currentSelected.classList.add('border-slate-600');
+            }
+
+            element.classList.remove('border-slate-600');
+            if (category === 'aa') {
+                element.classList.add('selected-deriv-aa', 'border-indigo-500');
+                selectedDerivAa = { el: element, id: id };
+            } else {
+                element.classList.add('selected-deriv-prod', 'border-fuchsia-500');
+                selectedDerivProd = { el: element, id: id };
+            }
+
+            checkDerivMatch();
+        }
+
+        function checkDerivMatch() {
+            if (selectedDerivAa && selectedDerivProd) {
+                if (selectedDerivAa.id === selectedDerivProd.id) {
+                    showFeedback('deriv-feedback', 'Biochemical match found!', true);
+                    
+                    selectedDerivAa.el.classList.replace('border-indigo-500', 'border-emerald-500');
+                    selectedDerivAa.el.classList.add('bg-emerald-900/30', 'opacity-50', 'pointer-events-none');
+                    
+                    selectedDerivProd.el.classList.replace('border-fuchsia-500', 'border-emerald-500');
+                    selectedDerivProd.el.classList.add('bg-emerald-900/30', 'opacity-50', 'pointer-events-none');
+
+                    derivMatchedCount++;
+                    if(derivMatchedCount === derivativesData.length) {
+                        setTimeout(() => {
+                            showFeedback('deriv-feedback', 'Perfect! You mastered the amino acid derivatives.', true);
+                        }, 1000);
+                    }
+                } else {
+                    showFeedback('deriv-feedback', 'Incorrect pathway. Try again.', false);
+                    
+                    const aEl = selectedDerivAa.el;
+                    const pEl = selectedDerivProd.el;
+                    
+                    aEl.classList.remove('selected-deriv-aa', 'border-indigo-500');
+                    aEl.classList.add('border-slate-600');
+                    pEl.classList.remove('selected-deriv-prod', 'border-fuchsia-500');
+                    pEl.classList.add('border-slate-600');
+                    
+                    aEl.classList.add('vibrate');
+                    pEl.classList.add('vibrate');
+                    
+                    setTimeout(() => {
+                        aEl.classList.remove('vibrate');
+                        pEl.classList.remove('vibrate');
+                    }, 500);
+                }
+                selectedDerivAa = null;
+                selectedDerivProd = null;
+            }
+        }
+
+    </script>
+</body>
+</html>
