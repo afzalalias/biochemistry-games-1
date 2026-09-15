@@ -329,7 +329,13 @@
 
         <!-- ================= MODULE 4: FUNCTIONS ================= -->
         <div id="view-functions" class="hidden glass-panel p-6 rounded-2xl max-w-5xl w-full h-full max-h-[800px] flex flex-col fade-in">
-             <h2 class="text-2xl font-bold text-amber-400 mb-2">Module 4: Protein Roles Match-up</h2>
+             <div class="flex justify-between items-center mb-2">
+                 <h2 class="text-2xl font-bold text-amber-400">Module 4: Protein Roles Match-up</h2>
+                 <button onclick="initFunctionsGame()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shadow-sm">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                     Reset Match-up
+                 </button>
+             </div>
              <p class="text-sm text-slate-300 mb-4">Proteins are the workhorses of the cell. Select a Protein Type on the left, then click its corresponding Function/Example on the right to make a match.</p>
              
              <div class="flex-grow flex gap-8 h-full">
@@ -385,7 +391,13 @@
 
         <!-- ================= MODULE 6: DERIVATIVES ================= -->
         <div id="view-derivatives" class="hidden glass-panel p-6 rounded-2xl max-w-5xl w-full h-full max-h-[800px] flex flex-col fade-in">
-             <h2 class="text-2xl font-bold text-indigo-400 mb-2">Module 6: Special Amino Acid Derivatives</h2>
+             <div class="flex justify-between items-center mb-2">
+                 <h2 class="text-2xl font-bold text-indigo-400">Module 6: Special Amino Acid Derivatives</h2>
+                 <button onclick="initDerivativesGame()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shadow-sm">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                     Reset Match-up
+                 </button>
+             </div>
              <p class="text-sm text-slate-300 mb-4">Amino acids are not just for building proteins! Many act as precursors for vital molecules like neurotransmitters and hormones. Match the precursor amino acid (left) to its biological product (right).</p>
              
              <div class="flex-grow flex gap-8 h-full">
@@ -747,6 +759,8 @@
         function initFunctionsGame() {
             funcsInitialized = true;
             matchedCount = 0;
+            selectedType = null;
+            selectedFunc = null;
             const colTypes = document.getElementById('col-types');
             const colFuncs = document.getElementById('col-functions');
             colTypes.innerHTML = '';
@@ -924,6 +938,8 @@
         function initDerivativesGame() {
             derivsInitialized = true;
             derivMatchedCount = 0;
+            selectedDerivAa = null;
+            selectedDerivProd = null;
             const colAa = document.getElementById('col-deriv-aa');
             const colProds = document.getElementById('col-deriv-products');
             colAa.innerHTML = '';
